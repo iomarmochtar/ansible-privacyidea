@@ -1,0 +1,42 @@
+---
+# validation
+- name: Validate driver
+  fail: msg="{{ driver }} is not supported"
+  when:
+    - install
+    - driver not in available_drivers
+
+- name: Validate DB conf
+  fail: msg="You must set all db_params config"
+  when:
+    - install
+    - driver != "sqlite"
+    - connstring is not defined
+    - "null not in db_params.keys()"
+
+# STATS BEGIN
+- name: Stat enckey
+  stat: path="{{ etc_dir }}/enckey"
+  register: stat_enckey
+
+- name: Stat audit file
+  stat: path="{{ etc_dir }}/public.pem"
+  register: stat_audit
+
+- name: Stat ldap proxy dir
+  stat: path="{{ proxy_dir }}"
+  register: stat_ldap_proxy_dir
+  when: install_ldap_proxy
+
+- name: Stat pip
+  stat: path="{{ pip }}"
+  register: stat_pip
+
+# STATS END
+
+- name: Create directory structures
+  file:
+    path: "{{ item }}"
+    state: directory
+    recurse: yes
+  loop: "{{ directories }}"

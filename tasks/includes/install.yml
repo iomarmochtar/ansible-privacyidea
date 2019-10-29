@@ -1,0 +1,85 @@
+---
+# OS DEPS
+- name: Install required dependencies from OS repo
+  package:
+    name: "{{ required_packages }}"
+    state: present
+
+- name: Install driver dependency
+  package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ vars['driver_'+driver+'_osdeps'] }}"
+
+- name: Install privacy idea package
+  command: "{{ pip }} install {{ item }}"
+  loop: "{{ python_libs }}"
+
+- name: Install driver package
+  command: "{{ pip }} install {{ item }}"
+  loop: "{{ vars['driver_'+driver+'_pydeps'] }}"
+
+- name: Set connection string
+  block:
+    - set_fact: connstring="{{ sqlite_path }}"
+      when:
+        - not connstring
+        - driver == "sqlite"
+
+    - set_fact: connstring="{{ driver }}://{{ db_params['username'] }}:{{ db_params['password'] }}@{{ db_params['host'] }}:{{ db_params['port'] }}/{{ db_params['db_name'] }}"
+      when:
+        - not connstring
+        - driver != "sqlite"
+
+- stat: path="{{ pi_cfg }}"
+  register: pi_cfg_stat
+
+- name: Sending privacyidea configuration file
+  vars:
+    gen_secret_key: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+    gen_pepper: "{{ lookup('password', '/dev/null chars=ascii_letters,digits,hexdigits') }}"
+  template:
+    src: pi.cfg.j2
+    dest: "{{ pi_cfg }}"
+  when: not pi_cfg_stat.stat.exists
+
+- name: Sending pi command wrapper
+  template:
+    src: pi_script.j2
+    dest: "{{ pi_bin }}"
+    mode: u=rxw,g=rxw,o-rwx
+
+- name: Sending WSGI script
+  template:
+    src: wsgi.py.j2
+    dest: "{{ wsgi_script }}"
+    mode: u=rxw,g=rxw,o-rwx
+
+- name: Create encryption key
+  command: "{{ pi_bin }} create_enckey"
+  when: not stat_audit.stat.exists
+
+- name: Create Audit key
+  command: "{{ pi_bin }} create_audit_keys"
+  when: not stat_enckey.stat.exists
+
+- name: Create DB Schema
+  command: "{{ pi_bin }} createdb"
+  when: not stat_enckey.stat.exists
+
+- name: Upgrade DB Schema
+  command: "{{ py_bin_dir }}/privacyidea-schema-upgrade {{ py_path }}/lib/privacyidea/migrations"
+  environment:
+    - PRIVACYIDEA_CONFIGFILE: "{{ pi_cfg }}"
+    - PATH: "{{ py_bin_dir }}:$PATH"
+
+- name: Create admin account
+  command: "{{ pi_bin }} admin add {{ admin_act }} -e {{ admin_email }} -p {{ admin_pwd }}"
+
+- name: Service runner
+  template:
+    src: srv_privacyidea.ini.j2
+    dest: "{{ services_etc_dir }}/privacyidea.ini"
+
+- name: Notification acccess
+  debug: "Your access to dashboard: user: {{ adminx }} , password: {{ admin_pwd }}"

@@ -1,0 +1,7 @@
+[program:proxy]
+command={{ py_bin_dir }}/twistd -n ldap-proxy -c ./etc/proxy.ini
+process_name=proxy
+priority=3
+redirect_stderr=true    
+directory={{ path }}
+stdout_logfile={{ log_dir }}/proxy_out.log

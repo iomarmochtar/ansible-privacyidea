@@ -1,0 +1,8 @@
+SUPERUSER_REALM = ['super', 'administrators']
+SQLALCHEMY_DATABASE_URI = '{{ connstring }}'
+SECRET_KEY = '{{ pi_secret_key or gen_secret_key }}'
+PI_PEPPER = '{{ pi_pepper or gen_pepper }}'
+PI_ENCFILE = '{{ etc_dir }}/enckey'
+PI_AUDIT_KEY_PRIVATE = '{{ etc_dir }}/private.pem'
+PI_AUDIT_KEY_PUBLIC = '{{ etc_dir }}/public.pem'
+PI_LOGFILE = '{{ log_dir }}/privacyidea.log'

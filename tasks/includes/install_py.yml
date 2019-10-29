@@ -1,0 +1,19 @@
+---
+# Installing miniconda
+- name: Make sure temporary directory is exists
+  file:
+    path: "{{ tmp_dir }}"
+    state: directory
+
+- name: Download python installer (miniconda)
+  get_url:
+    url: "{{ miniconda_dwn_url }}"
+    dest: "{{ tmp_dir }}/{{ miniconda }}"
+
+- name: Installing Python
+  command: "/bin/bash {{ tmp_dir }}/{{ miniconda }} -b -p {{ py_path }}"
+  args:
+    creates: "{{ py_path }}"
+
+- name: Upgrade pip version
+  command: "{{ pip }} install --upgrade pip"

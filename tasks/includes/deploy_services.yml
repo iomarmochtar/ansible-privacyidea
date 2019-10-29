@@ -1,0 +1,22 @@
+---
+- name: Sending supervisord main configuration
+  template:
+    src: supervisord.ini.j2
+    dest: "{{ etc_dir }}/supervisord.ini"
+
+- name: Sending supervisord init file
+  template:
+    src: supervisord_init.j2
+    dest: "/etc/init.d/{{ name_srv }}"
+    mode: u=rxw,g=rxw,o=rx
+
+- name: Sending logrotate config
+  template:
+    src: services_logrotate.j2
+    dest: "/etc/logrotate.d/{{ name_srv }}"
+    mode: u=rxw,g=rxw,o=r
+
+#- name: Start the service
+#  service: name="{{ name_srv }}" state=started
+- name: "Starting {{ name_srv }} daemon"
+  command: "/etc/init.d/{{ name_srv }} start"

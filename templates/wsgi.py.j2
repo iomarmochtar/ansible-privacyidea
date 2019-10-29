@@ -1,0 +1,12 @@
+#!{{ py_path }}/bin/python
+
+import sys
+sys.stdout = sys.stderr
+from privacyidea.app import create_app
+
+CONFIG = '{{ pi_cfg }}'
+
+app = create_app(
+  config_name='production', 
+  config_file=CONFIG
+)

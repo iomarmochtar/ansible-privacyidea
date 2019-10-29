@@ -1,0 +1,101 @@
+---
+name_srv: "privacyidea"
+install: false
+
+admin_act: "adminx"
+admin_pwd: "kacangitem"
+admin_email: "admin@local"
+
+path: "/opt/privacyidea"
+# temporary directory used while installation
+tmp_dir: /root/tmp_install_2fa
+
+# pi proxy
+install_ldap_proxy: false
+proxy_dir: "{{ path }}/proxy"
+proxy_repo: "https://github.com/privacyidea/privacyidea-ldap-proxy"
+proxy_listen: "tcp:port=1389"
+proxy_pi_access: "127.0.0.1"
+proxy_endpoint: "tcp:host=192.168.113.129:port=389"
+proxy_bind_dn: "uid=zimbra,cn=admins,cn=zimbra"
+proxy_bind_pwd: "passwordhere"
+
+# Python installer, we use latest of python 2.7
+miniconda: "Miniconda2-latest-Linux-x86_64.sh"
+miniconda_archive_site: https://repo.continuum.io/miniconda
+miniconda_dwn_url: "{{ miniconda_archive_site }}/{{ miniconda }}"
+
+# Directories
+etc_dir: "{{ path }}/etc"
+log_dir: "{{ path }}/log"
+bin_dir: "{{ path }}/bin"
+data_dir: "{{ path }}/data"
+pid_dir: "{{ data_dir }}/pid"
+services_etc_dir: "{{ path }}/etc/supervisord.d"
+directories:
+  - "{{ etc_dir }}"
+  - "{{ log_dir }}"
+  - "{{ bin_dir }}"
+  - "{{ data_dir }}"
+  - "{{ pid_dir }}"
+  - "{{ services_etc_dir }}"
+
+# all related to python
+py_path: "{{ path }}/py"
+py_bin_dir: "{{ py_path }}/bin"
+pip: "{{ py_path }}/bin/pip"
+
+# PI
+pi_cfg: "{{ etc_dir }}/pi.cfg"
+pi_bin: "{{ bin_dir }}/pi"
+wsgi_script: "{{ path }}/wsgi.py"
+pi_listen: 0.0.0.0
+pi_port: 9000
+pi_secret_key: null
+pi_pepper: null
+
+required_packages:
+  - git-core
+  - ca-certificates
+  - openssl
+  - nss-*
+  - zlib-devel
+  - gcc
+  - libjpeg-devel
+  - libxslt-devel
+  - libxml2-devel
+  - curl
+
+python_libs:
+  - gunicorn
+  - privacyidea
+  - supervisor
+
+available_drivers: [mysql, postgresql, sqlite]
+connstring: null
+
+# the default database is sqlite
+driver: sqlite
+sqlite_path: "sqlite:///{{ data_dir }}/pi.sqlite3"
+
+# Database dependency terkait OS dan Py
+driver_mysql_osdeps:
+  - mysql-devel
+driver_mysql_pydeps:
+  - MySQL-python
+
+driver_postgresql_osdeps:
+  - postgresql-devel
+driver_postgresql_pydeps:
+  - psycopg2
+
+driver_sqlite_osdeps: []
+driver_sqlite_pydeps: []
+
+# Database config
+db_params:
+  db_name: null
+  port: null
+  host: null
+  username: null
+  password: null

@@ -1,0 +1,28 @@
+---
+- name: Install git client
+  package:
+    name: git-core
+    state: present
+
+- name: Clone ldap proxy repository
+  git:
+    repo: "{{ proxy_repo }}"
+    dest: "{{ proxy_dir }}"
+    depth: 1
+  when: not stat_ldap_proxy_dir.stat.exists
+
+- name: Installing ldap proxy packages
+  command: "{{ pip }} install {{ proxy_dir }}"
+
+- name: Installing ldap proxy dependencies
+  command: "{{ pip }} install -r {{ proxy_dir }}/requirements.txt"
+
+- name: Sending proxy configuration
+  template:
+    src: proxy.ini.j2
+    dest: "{{ etc_dir }}/proxy.ini"
+
+- name: LDAP Proxy service runner
+  template:
+    src: srv_proxy.ini.j2
+    dest: "{{ services_etc_dir }}/proxy.ini"

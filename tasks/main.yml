@@ -1,0 +1,16 @@
+---
+- import_tasks: includes/pre_setup.yml
+
+- import_tasks: includes/install_py.yml
+  when: not stat_pip.stat.exists
+
+# Do the installation when encryption key not exists
+- import_tasks: includes/install.yml
+  when:
+    - install
+    - not stat_enckey.stat.exists
+
+- import_tasks: includes/install_ldap_proxy.yml
+  when: install_ldap_proxy
+
+- import_tasks: includes/deploy_services.yml

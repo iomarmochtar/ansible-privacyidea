@@ -1,0 +1,7 @@
+#!/bin/bash
+# author: Imam Omar Mochtar (iomarmochtar@gmail.com)
+# wrapper for command pi-manage 
+
+export PRIVACYIDEA_CONFIGFILE="{{ pi_cfg }}"
+
+{{ py_bin_dir }}/pi-manage $*

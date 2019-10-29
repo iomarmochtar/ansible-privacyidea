@@ -1,0 +1,7 @@
+[program:privacyidea]
+command={{ py_bin_dir }}/gunicorn --bind {{ pi_listen }}:{{ pi_port }} --workers 4 --log-file - --pythonpath .  wsgi:app
+process_name=privacyidea
+priority=2
+redirect_stderr=true    
+directory={{ path }}
+stdout_logfile={{ log_dir }}/privacyidea_out.log
