@@ -1,6 +1,8 @@
 ---
-name_srv: "privacyidea"
+name_srv: privacyidea
 install: false
+user: 2fa 
+user_uid: 1306
 
 admin_act: "adminx"
 admin_pwd: "kacangitem"
@@ -32,6 +34,8 @@ bin_dir: "{{ path }}/bin"
 data_dir: "{{ path }}/data"
 pid_dir: "{{ data_dir }}/pid"
 services_etc_dir: "{{ path }}/etc/supervisord.d"
+nginx_etc_dir: "{{ etc_dir }}/nginx"
+nginx_certs_dir: "{{ nginx_etc_dir }}/certs"
 directories:
   - "{{ etc_dir }}"
   - "{{ log_dir }}"
@@ -39,6 +43,7 @@ directories:
   - "{{ data_dir }}"
   - "{{ pid_dir }}"
   - "{{ services_etc_dir }}"
+  - "{{ nginx_certs_dir }}"
 
 # all related to python
 py_path: "{{ path }}/py"
@@ -49,8 +54,9 @@ pip: "{{ py_path }}/bin/pip"
 pi_cfg: "{{ etc_dir }}/pi.cfg"
 pi_bin: "{{ bin_dir }}/pi"
 wsgi_script: "{{ path }}/wsgi.py"
-pi_listen: 0.0.0.0
+pi_listen: 127.0.0.1
 pi_port: 9000
+pi_public_port: 9090
 pi_secret_key: null
 pi_pepper: null
 
@@ -65,6 +71,7 @@ required_packages:
   - libxslt-devel
   - libxml2-devel
   - curl
+  - nginx
 
 python_libs:
   - gunicorn

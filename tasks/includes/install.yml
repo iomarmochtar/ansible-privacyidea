@@ -21,12 +21,14 @@
 
 - name: Set connection string
   block:
-    - set_fact: connstring="{{ sqlite_path }}"
+    - name: Set SQLite driver path
+      set_fact: connstring="{{ sqlite_path }}"
       when:
         - not connstring
         - driver == "sqlite"
 
-    - set_fact: connstring="{{ driver }}://{{ db_params['username'] }}:{{ db_params['password'] }}@{{ db_params['host'] }}:{{ db_params['port'] }}/{{ db_params['db_name'] }}"
+    - name: Set driver connection string 
+      set_fact: connstring="{{ driver }}://{{ db_params['username'] }}:{{ db_params['password'] }}@{{ db_params['host'] }}:{{ db_params['port'] }}/{{ db_params['db_name'] }}"
       when:
         - not connstring
         - driver != "sqlite"
@@ -42,6 +44,34 @@
     src: pi.cfg.j2
     dest: "{{ pi_cfg }}"
   when: not pi_cfg_stat.stat.exists
+
+# NGINX begin 
+- name: Sending NGINX main configuration file
+  template:
+    src: nginx_main.conf.j2
+    dest: "{{ nginx_etc_dir }}/main.conf"
+
+- name: Sending NGINX mime types config file 
+  copy:
+    src: nginx_mime.types
+    dest: "{{ nginx_etc_dir }}/mime.types"
+
+- name: Generating self sign certificate (you may replace it)
+  vars:
+    key: ssl.key
+    pub: ssl.cert
+    subjects: "/C=ID/ST=DKI Jakarta/L=South of Jakarta/O=OMR/OU=IT Department/CN=2fa.mochtar.net"
+  command: "openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout {{ key }} -out {{ pub }} -subj '{{ subjects }}'"
+  args:
+    chdir: "{{ nginx_certs_dir }}"
+    creates: "{{ nginx_certs_dir }}/ssl.key"
+
+- name: Service nginx runner
+  template:
+    src: srv_nginx.ini.j2
+    dest: "{{ services_etc_dir }}/nginx.ini"
+
+# NGINX end
 
 - name: Sending pi command wrapper
   template:
@@ -82,4 +112,4 @@
     dest: "{{ services_etc_dir }}/privacyidea.ini"
 
 - name: Notification acccess
-  debug: "Your access to dashboard: user: {{ adminx }} , password: {{ admin_pwd }}"
+  debug: "Your access to dashboard: user: {{ admin_act }} , password: {{ admin_pwd }}"

@@ -1,0 +1,16 @@
+---
+
+- name: Create user for system process
+  user:
+    name: "{{ user }}"
+    uid: "{{ user_uid }}"
+    home: "{{ path }}"
+    shell: /sbin/nologin
+    comment: PrivacyIdea user
+    state: present
+
+- name: Set app path ownership
+  file:
+    dest: "{{ path }}"
+    owner: "{{ user }}"
+    recurse: true 

@@ -13,4 +13,6 @@
 - import_tasks: includes/install_ldap_proxy.yml
   when: install_ldap_proxy
 
+- import_tasks: includes/system_user.yml
+
 - import_tasks: includes/deploy_services.yml
