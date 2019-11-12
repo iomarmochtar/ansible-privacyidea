@@ -1,7 +1,7 @@
 galaxy_info:
   role_name: privacyidea
   author: Imam Omar Mochtar
-  description: Zimbra Local Repository Setup
+  description: Privacyidea installation & configuration 
   license: GNU GPL v3.0
   min_ansible_version: 2.4
 
